@@ -30,16 +30,35 @@ final class EntitlementRepo
     }
 
     /**
-     * Grant a membership tier from a subscription. Revokes any prior entitlement
-     * sourced from the same subscription so tier changes leave a clean trail.
+     * Grant a membership tier from a subscription. Idempotent: if an active
+     * entitlement already exists for the same subscription with the same tier,
+     * no rows are written. Tier changes revoke the prior row and insert a new
+     * one so the audit trail stays clean.
      */
     public static function grantMembershipFromSubscription(
         int $customerId,
         string $tierRef,
         int $subscriptionId,
     ): void {
+        $pdo = Db::pdo();
+
+        // Already-active entitlement for the same source?
+        $stmt = $pdo->prepare(
+            'SELECT id, ref FROM entitlements
+             WHERE source_type = ? AND source_id = ? AND revoked_at IS NULL
+             ORDER BY id DESC LIMIT 1'
+        );
+        $stmt->execute( [ self::SOURCE_SUBSCRIPTION, $subscriptionId ] );
+        $existing = $stmt->fetch( PDO::FETCH_ASSOC );
+
+        if ( $existing && (string) $existing['ref'] === $tierRef ) {
+            // Same source, same tier — nothing to do.
+            return;
+        }
+
+        // Tier changed (or first time): revoke any prior, insert fresh.
         self::revokeBySource( self::SOURCE_SUBSCRIPTION, $subscriptionId );
-        Db::pdo()->prepare(
+        $pdo->prepare(
             'INSERT INTO entitlements
                 (uuid, customer_id, kind, ref, source_type, source_id)
              VALUES (?, ?, ?, ?, ?, ?)'
