@@ -14,6 +14,7 @@ final class Plugin
 
     public static function activate(): void
     {
+        self::registerSchedule();
         Schema::apply();
 
         if ( ! wp_next_scheduled( self::CRON_HOOK ) ) {
@@ -32,14 +33,7 @@ final class Plugin
 
     public static function boot(): void
     {
-        // Custom cron interval.
-        add_filter( 'cron_schedules', static function ( array $schedules ): array {
-            $schedules[ self::CRON_SCHEDULE ] = [
-                'interval' => 5 * MINUTE_IN_SECONDS,
-                'display'  => __( 'Every 5 minutes (LGMS)', 'lg-member-sync' ),
-            ];
-            return $schedules;
-        });
+        self::registerSchedule();
 
         // Cron handler — runs all pollers + arbiter sweep.
         add_action( self::CRON_HOOK, [ Tick::class, 'run' ] );
@@ -48,5 +42,22 @@ final class Plugin
         if ( is_admin() ) {
             Admin::boot();
         }
+    }
+
+    /**
+     * Register the custom 5-minute cron interval. Called from both
+     * activate() and boot() because plugins_loaded fires BEFORE the
+     * activation hook, which would otherwise leave wp_schedule_event
+     * with an unknown schedule name.
+     */
+    private static function registerSchedule(): void
+    {
+        add_filter( 'cron_schedules', static function ( array $schedules ): array {
+            $schedules[ self::CRON_SCHEDULE ] = [
+                'interval' => 5 * MINUTE_IN_SECONDS,
+                'display'  => __( 'Every 5 minutes (LGMS)', 'lg-member-sync' ),
+            ];
+            return $schedules;
+        });
     }
 }
