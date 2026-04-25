@@ -36,11 +36,12 @@ final class Admin
     public static function registerSettings(): void
     {
         $fields = [
-            'lgms_db_host' => '127.0.0.1',
-            'lgms_db_port' => '3306',
-            'lgms_db_name' => 'lg_membership',
-            'lgms_db_user' => 'lg_membership',
-            'lgms_db_pass' => '',
+            'lgms_db_host'           => '127.0.0.1',
+            'lgms_db_port'           => '3306',
+            'lgms_db_name'           => 'lg_membership',
+            'lgms_db_user'           => 'lg_membership',
+            'lgms_db_pass'           => '',
+            'lgms_stripe_secret_key' => '',
         ];
         foreach ( $fields as $key => $_default ) {
             register_setting( self::OPT_GROUP, $key, [
@@ -78,6 +79,7 @@ final class Admin
 
             <form method="post" action="options.php">
                 <?php settings_fields( self::OPT_GROUP ); ?>
+                <h2>DB connection</h2>
                 <table class="form-table">
                     <tr><th><label>Host</label></th><td><input type="text" name="lgms_db_host" value="<?php echo esc_attr( get_option( 'lgms_db_host', '127.0.0.1' ) ); ?>" class="regular-text"></td></tr>
                     <tr><th><label>Port</label></th><td><input type="text" name="lgms_db_port" value="<?php echo esc_attr( get_option( 'lgms_db_port', '3306' ) ); ?>" class="small-text"></td></tr>
@@ -85,6 +87,12 @@ final class Admin
                     <tr><th><label>User</label></th><td><input type="text" name="lgms_db_user" value="<?php echo esc_attr( get_option( 'lgms_db_user', 'lg_membership' ) ); ?>" class="regular-text"></td></tr>
                     <tr><th><label>Password</label></th><td><input type="password" name="lgms_db_pass" value="<?php echo esc_attr( get_option( 'lgms_db_pass', '' ) ); ?>" class="regular-text" autocomplete="off"></td></tr>
                 </table>
+
+                <h2>Stripe</h2>
+                <table class="form-table">
+                    <tr><th><label>Secret key</label></th><td><input type="password" name="lgms_stripe_secret_key" value="<?php echo esc_attr( get_option( 'lgms_stripe_secret_key', '' ) ); ?>" class="regular-text" autocomplete="off" placeholder="sk_test_... or sk_live_..."></td></tr>
+                </table>
+
                 <?php submit_button(); ?>
             </form>
         </div>
