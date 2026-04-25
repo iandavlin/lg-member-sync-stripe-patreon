@@ -1,0 +1,18 @@
+{
+    "name": "loothgroup/lg-member-sync",
+    "description": "WordPress plugin: polls Stripe + Patreon, writes to lg_membership, owns wp_capabilities arbitration.",
+    "type": "wordpress-plugin",
+    "license": "proprietary",
+    "require": {
+        "php": ">=8.3",
+        "stripe/stripe-php": "^14.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "LGMS\\": "src/"
+        }
+    },
+    "config": {
+        "sort-packages": true
+    }
+}
