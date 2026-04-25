@@ -1,40 +1,26 @@
-# LG Member Sync
+# LG Member Sync — DEPRECATED 2026-04-25
 
-WordPress companion plugin to [`lg-stripe-billing`](https://github.com/iandavlin/lg-stripe-billing).
+> ⚠️ **This plugin has been retired.** Its entire codebase was folded into
+> [`lg-patreon-stripe-poller`](https://github.com/iandavlin/lg-patreon-stripe-poller)
+> (formerly `lg-patreon-oauth`) on **2026-04-25**.
+>
+> The merged plugin now owns:
+> - Patreon OAuth onboarding (the original `lg-patreon-onboard` half)
+> - Patreon API polling
+> - Stripe Events API polling (this repo's contribution)
+> - WP user provisioning
+> - `lg_role_sources` arbitration
+> - `wp_capabilities` writes
+>
+> Slim API companion: [`lg-stripe-billing`](https://github.com/iandavlin/lg-stripe-billing).
+>
+> **Do not deploy or modify this repo.** All future work happens in
+> `lg-patreon-stripe-poller`.
 
-## What it does
+---
 
-- Polls Stripe Events API and Patreon OAuth on WP cron (every 5 min).
-- Writes to the `lg_membership` database that the standalone Slim app also uses.
-- Arbitrates per-source role opinions via `lg_role_sources`.
-- **Sole writer of `wp_usermeta.wp_capabilities`** for `looth1–4` tiers — preserves admin / bbp_participant / etc.
+## Original description (historical)
 
-Runs alongside the Slim app, which handles the synchronous user-facing checkout flow. Slim does immediate provisioning on Stripe redirect; this plugin catches up everything that happens later (renewals, cancellations, refunds, Patreon pledge changes).
+WordPress companion plugin to [`lg-stripe-billing`](https://github.com/iandavlin/lg-stripe-billing). Polls Stripe + Patreon, writes to `lg_membership`, arbitrates per-source role opinions via `lg_role_sources`, and is the sole writer of `wp_usermeta.wp_capabilities` for `looth1`–`looth4` tiers.
 
-## Phases
-
-| Phase | Status | Purpose |
-|---|---|---|
-| 1 | in progress | Plugin scaffold + cron registration + arbiter/cursor tables + DB settings UI |
-| 2 | planned | Stripe Events API poller — actually consumes events |
-| 3 | planned | Arbiter logic + `wp_capabilities` writer |
-| 4 | planned | Patreon poller (port from existing `lg-patreon-sync`) |
-| 5 | planned | Cutover — retire old `lg-stripe-membership` + `lg-patreon-sync` plugins |
-
-## Install (dev)
-
-```bash
-cd /var/www/dev/wp-content/plugins
-git clone https://github.com/iandavlin/lg-member-sync.git
-cd lg-member-sync
-composer install --no-dev
-wp plugin activate lg-member-sync
-```
-
-Then **Settings → LG Member Sync** to set the `lg_membership` DB password.
-
-## Architecture
-
-- DB: connects to `lg_membership` via PDO. Two new tables (`lg_role_sources`, `lg_event_cursor`) live there.
-- Cron: registers `lgms_poll_tick` on a 5-minute custom interval.
-- Namespace: `LGMS\` (PSR-4 under `src/`).
+The phased build (scaffold → Stripe poller → arbiter → Patreon poller → cutover) was completed in a single day and immediately consolidated into the unified plugin.
