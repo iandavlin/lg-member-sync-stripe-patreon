@@ -42,6 +42,7 @@ final class Admin
             'lgms_db_user'           => 'lg_membership',
             'lgms_db_pass'           => '',
             'lgms_stripe_secret_key' => '',
+            'lgms_shared_secret'     => '',
         ];
         foreach ( $fields as $key => $_default ) {
             register_setting( self::OPT_GROUP, $key, [
@@ -91,6 +92,12 @@ final class Admin
                 <h2>Stripe</h2>
                 <table class="form-table">
                     <tr><th><label>Secret key</label></th><td><input type="password" name="lgms_stripe_secret_key" value="<?php echo esc_attr( get_option( 'lgms_stripe_secret_key', '' ) ); ?>" class="regular-text" autocomplete="off" placeholder="sk_test_... or sk_live_..."></td></tr>
+                </table>
+
+                <h2>Slim ↔ plugin shared secret</h2>
+                <p class="description">Used to authenticate Slim's calls to <code>/wp-json/lg-member-sync/v1/sync-customer</code>. Set the same value on Slim's <code>LGMS_SHARED_SECRET</code> in <code>.env</code>.</p>
+                <table class="form-table">
+                    <tr><th><label>Shared secret</label></th><td><input type="password" name="lgms_shared_secret" value="<?php echo esc_attr( get_option( 'lgms_shared_secret', '' ) ); ?>" class="regular-text" autocomplete="off"></td></tr>
                 </table>
 
                 <?php submit_button(); ?>
